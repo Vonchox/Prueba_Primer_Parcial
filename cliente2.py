@@ -1,18 +1,19 @@
-import socket
-import threading
-from contextlib import suppress
+import socket  # Abre la conexión TCP y envía los mensajes
+import threading  # Permite recibir mensajes mientras usamos el teclado
+from contextlib import suppress  # Ignora errores concretos al cerrar la conexión
 
 
 class Cliente2:
     def __init__(self, host="127.0.0.1", puerto=5050):
-        # Guardamos el nombre que verá el chat y la dirección que Docker publica en el equipo.
+        # Guardamos el nombre que verá el chat y la dirección que Docker publica en el equipo
         self.nombre = "CLIENTE 2"
         self.direccion = (host, puerto)
 
     def iniciar(self):
-        # Al conectarnos, mandamos nuestro nombre y esperamos que el servidor lo acepte.
+        # Al conectarnos, mandamos nuestro nombre y esperamos que el servidor lo acepte
         try:
             with socket.create_connection(self.direccion) as conexion:
+                # makefile nos deja leer el socket como texto, una línea a la vez.
                 with conexion.makefile("r", encoding="utf-8") as entrada:
                     conexion.sendall((self.nombre + "\n").encode("utf-8"))
                     respuesta = entrada.readline().rstrip("\n")
@@ -26,8 +27,8 @@ class Cliente2:
             print(f"No se pudo comunicar con el servidor: {error}")
 
     def conversar(self, conexion, entrada):
-        # El hilo principal lee el teclado y envía lo que escribimos y el receptor
-        # muestra lo que llega mientras escribimos y los dos comparten una señal de cierre.
+        # Mientras un hilo lee el teclado, el otro recibe mensajes
+        # Event es la señal que ambos consultan para saber si toca salir
         cerrar = threading.Event()
 
         receptor = threading.Thread(target=self.recibir, args=(entrada, cerrar))
@@ -38,20 +39,22 @@ class Cliente2:
                 if cerrar.is_set() or mensaje == "/salir":
                     break
                 if mensaje:
-                    # El salto de línea le indica al servidor dónde termina el mensaje.
+                    # Enviamos bytes para marcar el final del mensaje
                     conexion.sendall((mensaje + "\n").encode("utf-8"))
         except (EOFError, KeyboardInterrupt):
             pass
         finally:
             cerrar.set()
-            # Despertamos al receptor si todavía está esperando una línea del servidor.
+            # Cerramos el envío y la recepción para desbloquear la lectura del receptor
+            # Si el socket ya se desconectó, podemos seguir aunque shutdown dé error
             with suppress(OSError):
                 conexion.shutdown(socket.SHUT_RDWR)
+            # join espera a que el receptor termine antes de salir
             receptor.join()
 
     def recibir(self, entrada, cerrar):
         # Mostramos los mensajes con el nombre que puso el servidor, si la conexión
-        # se corta, avisamos al otro hilo para que termine cuando se pulse Enter.
+        # se corta, avisamos al otro hilo para que termine cuando se pulse Enter
         try:
             for linea in entrada:
                 print(linea.rstrip("\n"))
@@ -63,6 +66,6 @@ class Cliente2:
                 print("\nSe cerró la conexión con el servidor, presiona Enter para salir.")
 
 
-# Iniciamos este cliente cuando ejecutamos su archivo desde la terminal.
+# Iniciamos este cliente cuando ejecutamos su archivo desde la terminal
 if __name__ == "__main__":
     Cliente2().iniciar()
