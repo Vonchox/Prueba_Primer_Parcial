@@ -1,6 +1,18 @@
 # Chat en tiempo real con Python
 
-El chat tiene tres participantes: `SERVIDOR`, `CLIENTE 1` y `CLIENTE 2`. Se comunican por TCP y cada participante puede escribir mientras recibe mensajes, en este caso docker solo ejecuta el servidor y los clientes se ejecutan con Python desde dos terminales de VS Code.
+## Descripción del ejercicio
+
+El chat tiene tres participantes. El servidor acepta dos conexiones al mismo tiempo, recibe los mensajes de los clientes y los reparte con el nombre de quien escribió. También puede enviar mensajes desde su propia consola. Cada cliente usa un hilo para recibir mensajes mientras escribe en su terminal.
+
+## Estructura del proyecto
+
+| Archivo | Qué hace |
+| --- | --- |
+| `servidor.py` | Atiende a cada cliente en un hilo y lee la consola del servidor en otro. |
+| `cliente1.py` | Conecta, envía y recibe mensajes como `CLIENTE 1`. |
+| `cliente2.py` | Conecta, envía y recibe mensajes como `CLIENTE 2`. |
+| `Dockerfile` | Construye la imagen que ejecuta el servidor. |
+| `compose.yaml` | Define el servicio `servidor`, publica el puerto y habilita su consola. |
 
 ## Requisitos
 
@@ -10,24 +22,31 @@ El chat tiene tres participantes: `SERVIDOR`, `CLIENTE 1` y `CLIENTE 2`. Se comu
 
 Los comandos se ejecutan desde la raíz del repositorio, donde está `compose.yaml`.
 
-## 1. Levantar el servidor
+## Ejecución
 
-En la primera terminal, construye y arranca el servidor, luego abre su consola para poder escribir en el chat.
+Solo el servidor corre en Docker. Los clientes se ejecutan con Python en dos terminales independientes de VS Code.
+
+### Terminal 1 · Servidor
+
+Ejecuta los comandos uno por uno. Con `docker compose ps` puedes comprobar que el servicio `servidor` aparece con estado `Up`.
 
 ```sh
 docker compose up --build -d
+docker compose ps
 docker compose attach servidor
 ```
 
 Deja abierta esa terminal. El servidor escucha en el puerto `5000` dentro del contenedor. Docker lo publica en `127.0.0.1:5050`, que es la dirección que usan los clientes.
 
-## 2. Conectar los dos clientes
+### Terminal 2 · Cliente 1
 
 En una segunda terminal de VS Code, inicia Cliente 1.
 
 ```sh
 python cliente1.py
 ```
+
+### Terminal 3 · Cliente 2
 
 En una tercera terminal, inicia Cliente 2.
 
@@ -37,6 +56,18 @@ python cliente2.py
 
 Si en Windows usas el lanzador de Python, puedes escribir `py cliente1.py` y `py cliente2.py`.
 
+## Prueba de funcionamiento
+
+1. Espera a que cada cliente muestre `Conectado como CLIENTE 1` o `Conectado como CLIENTE 2`.
+2. Escribe `Hola a todos` en Cliente 1, `Hola cliente 1` en la consola del servidor y `Buenos días` en Cliente 2. Presiona Enter después de cada mensaje. Los dos clientes deben ver las tres líneas con su autor.
+
+   ```text
+   [CLIENTE 1]: Hola a todos
+   [SERVIDOR]: Hola cliente 1
+   [CLIENTE 2]: Buenos días
+   ```
+
+3. Para probar que el chat funciona sin turnos, prepara un mensaje distinto en cada cliente y presiona Enter en las dos terminales casi al mismo tiempo. Ambos mensajes deben aparecer completos en los dos clientes.
 
 ## Cerrar el chat
 
@@ -45,8 +76,3 @@ Escribe `/salir` en cada cliente. Para salir de la consola del servidor, presion
 ```sh
 docker compose down
 ```
-
-## Cómo se reparte el trabajo
-
-- `servidor.py` contiene la clase `Servidor`, en este abre un hilo para atender a cada cliente y otro para leer la consola, los mensajes se reparten a todos los clientes conectados, incluido quien escribió.
-- `cliente1.py` y `cliente2.py` contienen las clases `Cliente1` y `Cliente2`. Cada cliente abre su propia conexión, envía lo que escribes en la terminal y usa un hilo para mostrar los mensajes que llegan.
