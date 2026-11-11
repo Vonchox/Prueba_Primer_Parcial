@@ -1,0 +1,8 @@
+services:
+  servidor:
+    build: .
+    init: true
+    ports:
+      - "127.0.0.1:5050:5000"
+    stdin_open: true
+    tty: true
