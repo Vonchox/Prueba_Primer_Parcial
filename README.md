@@ -49,5 +49,4 @@ docker compose down
 ## Cómo se reparte el trabajo
 
 - `servidor.py` contiene la clase `Servidor`, en este abre un hilo para atender a cada cliente y otro para leer la consola, los mensajes se reparten a todos los clientes conectados, incluido quien escribió.
-- `cliente.py` contiene la clase `Cliente` con la conexión, el envío y un hilo para mostrar los mensajes entrantes.
-- `cliente1.py` y `cliente2.py` tienen una clase y un punto de inicio por participante. Cada clase le pasa su nombre al cliente común.
+- `cliente1.py` y `cliente2.py` contienen las clases `Cliente1` y `Cliente2`. Cada cliente abre su propia conexión, envía lo que escribes en la terminal y usa un hilo para mostrar los mensajes que llegan.
