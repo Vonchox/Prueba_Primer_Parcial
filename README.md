@@ -2,7 +2,7 @@
 
 ## Descripción del ejercicio
 
-El chat tiene tres participantes. El servidor acepta dos conexiones al mismo tiempo, recibe los mensajes de los clientes y los reparte con el nombre de quien escribió. También puede enviar mensajes desde su propia consola. Cada cliente usa un hilo para recibir mensajes mientras escribe en su terminal.
+El chat tiene tres participantes, el servidor acepta dos conexiones al mismo tiempo, recibe los mensajes de los clientes y los reparte con el nombre de quien escribió, este también puede enviar mensajes desde su propia consola y cada cliente usa un hilo para recibir mensajes mientras escribe en su terminal.
 
 ## Estructura del proyecto
 
@@ -24,7 +24,7 @@ Los comandos se ejecutan desde la raíz del repositorio, donde está `compose.ya
 
 ## Ejecución
 
-Solo el servidor corre en Docker. Los clientes se ejecutan con Python en dos terminales independientes de VS Code.
+Solo el servidor corre en Docker y los clientes se ejecutan con Python en dos terminales independientes de VS Code.
 
 ### Terminal 1 · Servidor
 
@@ -59,7 +59,7 @@ Si en Windows usas el lanzador de Python, puedes escribir `py cliente1.py` y `py
 ## Prueba de funcionamiento
 
 1. Espera a que cada cliente muestre `Conectado como CLIENTE 1` o `Conectado como CLIENTE 2`.
-2. Escribe `Hola a todos` en Cliente 1, `Hola cliente 1` en la consola del servidor y `Buenos días` en Cliente 2. Presiona Enter después de cada mensaje. Los dos clientes deben ver las tres líneas con su autor.
+2. Escribe `Hola a todos` en Cliente 1, `Hola cliente 1` en la consola del servidor y `Buenos días` en Cliente 2 y presiona Enter después de cada mensaje, los dos clientes deben ver las tres líneas con su autor.
 
    ```text
    [CLIENTE 1]: Hola a todos
@@ -67,7 +67,7 @@ Si en Windows usas el lanzador de Python, puedes escribir `py cliente1.py` y `py
    [CLIENTE 2]: Buenos días
    ```
 
-3. Para probar que el chat funciona sin turnos, prepara un mensaje distinto en cada cliente y presiona Enter en las dos terminales casi al mismo tiempo. Ambos mensajes deben aparecer completos en los dos clientes.
+3. Para probar que el chat funciona sin turnos, prepara un mensaje distinto en cada cliente y presiona Enter en las dos terminales casi al mismo tiempo, ambos mensajes deben aparecer completos en los dos clientes.
 
 ## Cerrar el chat
 
